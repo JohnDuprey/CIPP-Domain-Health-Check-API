@@ -59,17 +59,31 @@ function Resolve-DnsHttpsQuery {
 
     Write-Verbose "### $Uri ###"
  
-    try {
-        $Results = Invoke-RestMethod -Uri $Uri -Headers $Headers -ErrorAction Stop
-    }
-    catch {
-        Write-Verbose "$Resolver DoH Query Exception - $($_.Exception.Message)" 
-        return $null
-    }
+    $Retry = 0
+    $DataReturned = $false
+    while (!$DataReturned) {
+        try {
+            $Results = Invoke-RestMethod -Uri $Uri -Headers $Headers -ErrorAction Stop
+        }
+        catch {
+            Write-Verbose "$Resolver DoH Query Exception - $($_.Exception.Message)" 
+        }
     
-    if ($Resolver -eq 'Cloudflare' -and $RecordType -eq 'txt' -and $Results.Answer) {
-        $Results.Answer | ForEach-Object {
-            $_.data = $_.data -replace '"' -replace '\s+', ' '
+        if ($Resolver -eq 'Cloudflare' -and $RecordType -eq 'txt' -and $Results.Answer) {
+            $Results.Answer | ForEach-Object {
+                $_.data = $_.data -replace '"' -replace '\s+', ' '
+            }
+        }
+
+        if ($Results.Answer) {
+            $DataReturned = $true
+        }
+        else {
+            if ($Retry -gt 3) {
+                $Results = $null
+                $DataReturned = $true
+            }
+            $Retry++
         }
     }
     
