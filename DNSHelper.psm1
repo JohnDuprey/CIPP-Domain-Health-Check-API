@@ -84,6 +84,7 @@ function Resolve-DnsHttpsQuery {
                 $DataReturned = $true
             }
             $Retry++
+            Start-Sleep -Milliseconds 500
         }
     }
     
