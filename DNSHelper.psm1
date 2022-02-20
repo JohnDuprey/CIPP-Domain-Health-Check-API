@@ -720,7 +720,7 @@ function Read-SpfRecord {
                 $Recommendations.Add([pscustomobject]@{
                         Message = ("Add 'include:{0} to your record." -f $ExpectedInclude)
                         Match   = '^v=spf1 (.+?)([-~?+]all)?$'
-                        Replace = "v=spf1 `$1 include:$ExpectedInclude `$2"
+                        Replace = "v=spf1 include:$ExpectedInclude `$1 `$2"
                     }) | Out-Null
             }
         }
