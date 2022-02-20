@@ -730,6 +730,7 @@ function Read-SpfRecord {
             $ValidationFails.Add('All mechanism is missing from SPF record, defaulting to ?all') | Out-Null
             $AllMechanism = '?all' 
         }
+
         if ($AllMechanism -eq '-all') {
             $ValidationPasses.Add('SPF record ends in -all') | Out-Null
         }
@@ -737,7 +738,7 @@ function Read-SpfRecord {
             $ValidationFails.Add('SPF record should end in -all to prevent spamming') | Out-Null 
             $Recommendations.Add([PSCustomObject]@{
                     Message = "Replace '{0}' with '-all' to make a SPF failure result in a hard fail." -f $AllMechanism
-                    Match   = $AllMechanism
+                    Match   = [regex]::escape($AllMechanism)
                     Replace = '-all'
                 }) | Out-Null
         }
