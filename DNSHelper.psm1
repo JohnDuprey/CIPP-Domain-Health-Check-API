@@ -1184,13 +1184,9 @@ function Read-DkimRecord {
             }
             catch {}
         }
-
-        if (($Selectors | Measure-Object | Select-Object -ExpandProperty Count) -eq 0) {
-            $ValidationFails.Add("$Domain - No selectors provided") | Out-Null
-        }
     }
     
-    if (($Selectors | Measure-Object | Select-Object -ExpandProperty Count) -gt 0 -and $Selectors -notcontains '') {
+    if (($Selectors | Measure-Object | Select-Object -ExpandProperty Count) -gt 0) {
         foreach ($Selector in $Selectors) {
             # Initialize object
             $DkimRecord = [PSCustomObject]@{
@@ -1341,7 +1337,7 @@ function Read-DkimRecord {
         }
     }
     else {
-        $ValidationWarns.Add('No DKIM selectors provided') | Out-Null
+        $ValidationWarns.Add('No DKIM selectors provided, set them in the domain options') | Out-Null
     }
 
     if ($MinimumSelectorPass -gt 0 -and $SelectorPasses -eq 0) {
