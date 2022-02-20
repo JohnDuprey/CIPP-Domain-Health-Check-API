@@ -1211,6 +1211,8 @@ function Read-DkimRecord {
 
             $QueryResults = Resolve-DnsHttpsQuery @DnsQuery
 
+            if ([string]::IsNullOrEmpty($Selector)) { continue }
+
             if ($QueryResults -eq '' -or $QueryResults.Status -ne 0) {
                 if ($QueryResults.Status -eq 3) {
                     if ($MinimumSelectorPass -eq 0) {
@@ -1336,7 +1338,7 @@ function Read-DkimRecord {
             }      
         }
     }
-    else {
+    if (($DkimAnalysis.Records | Measure-Object | Select-Object -ExpandProperty Count) -eq 0 -and [string]::IsNullOrEmpty($DkimAnalysis.Selectors)) {
         $ValidationWarns.Add('No DKIM selectors provided, set them in the domain options') | Out-Null
     }
 
