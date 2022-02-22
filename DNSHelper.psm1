@@ -88,7 +88,7 @@ function Resolve-DnsHttpsQuery {
         }
     }
     
-    #Write-Verbose ($Results | ConvertTo-Json)
+    Write-Verbose ($Results | ConvertTo-Json)
     return $Results
 }
 
@@ -1144,6 +1144,7 @@ function Read-DkimRecord {
 
     $DkimAnalysis = [PSCustomObject]@{
         Domain           = $Domain
+        Selectors        = $Selectors
         MailProvider     = ''
         Records          = [System.Collections.Generic.List[object]]::new()
         ValidationPasses = [System.Collections.Generic.List[string]]::new()
@@ -1166,6 +1167,7 @@ function Read-DkimRecord {
             if ($MXRecord.MailProvider.PSObject.Properties.Name -contains 'MinimumSelectorPass') {
                 $MinimumSelectorPass = $MXRecord.MailProvider.MinimumSelectorPass
             }
+            $DkimAnalysis.Selectors = $Selectors
         }
         catch {}
         
@@ -1201,6 +1203,7 @@ function Read-DkimRecord {
                 HashAlgorithms   = ''
                 ServiceType      = ''
                 Granularity      = ''
+                Raw              = ''
                 UnrecognizedTags = [System.Collections.Generic.List[object]]::new()
             }
 
@@ -1210,6 +1213,7 @@ function Read-DkimRecord {
             }
 
             $QueryResults = Resolve-DnsHttpsQuery @DnsQuery
+            $DkimRecord.Raw = $QueryResults.Answer
 
             if ([string]::IsNullOrEmpty($Selector)) { continue }
 
@@ -1225,7 +1229,7 @@ function Read-DkimRecord {
                 $Record = ''
             }
             else {
-                $QueryData = ($QueryResults.Answer).data | Where-Object { $_ -match '^v=DKIM1' }
+                $QueryData = ($QueryResults.Answer).data | Where-Object { $_ -match '(v=|k=|t=|p=)' }
                 if (( $QueryData | Measure-Object).Count -gt 1) {
                     $Record = $QueryData[-1]
                 }
@@ -1254,12 +1258,13 @@ function Read-DkimRecord {
             
             # Loop through name/value pairs and set object properties
             $x = 0
-            foreach ($Tag in $TagList) {
+            foreach ($Tag in $TagList) { 
+                if ($x -eq 0 -and $Tag.Value -ne 'DKIM1') { $ValidationFails.Add("$Selector -  v=DKIM1 must be at the beginning of the record") | Out-Null }
+            
                 switch ($Tag.Name) {
                     'v' {
                         # REQUIRED: Version
                         if ($x -ne 0) { $ValidationFails.Add("$Selector - v=DKIM1 must be at the beginning of the record") | Out-Null }
-                        if ($Tag.Value -ne 'DKIM1') { $ValidationFails.Add("$Selector - Version must be DKIM1 - found $($Tag.Value)") | Out-Null }
                         $DkimRecord.Version = $Tag.Value
                     }
                     'p' {
@@ -1330,12 +1335,11 @@ function Read-DkimRecord {
                     $SelectorPasses++
                 }
 
-                ($DkimAnalysis.Records).Add($DkimRecord) | Out-Null
-
                 if (($ValidationFails | Measure-Object | Select-Object -ExpandProperty Count) -eq 0) {
                     $ValidationPasses.Add("$Selector - No errors detected with DKIM record") | Out-Null
                 }
-            }      
+            }    
+            ($DkimAnalysis.Records).Add($DkimRecord) | Out-Null  
         }
     }
     if (($DkimAnalysis.Records | Measure-Object | Select-Object -ExpandProperty Count) -eq 0 -and [string]::IsNullOrEmpty($DkimAnalysis.Selectors)) {
