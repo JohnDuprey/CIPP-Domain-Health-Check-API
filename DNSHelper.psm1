@@ -84,7 +84,7 @@ function Resolve-DnsHttpsQuery {
                 $DataReturned = $true
             }
             $Retry++
-            Start-Sleep -Milliseconds 500
+            Start-Sleep -Milliseconds 250
         }
     }
     
@@ -698,7 +698,7 @@ function Read-SpfRecord {
             if ($TypeLookups.RecordType -contains 'mx') {
                 $Recommendations.Add([pscustomobject]@{
                         Message = "Remove the 'mx' modifier from your record. Check the mail provider documentation for the correct SPF include.";
-                        Match   = '\s*(mx)\s+'
+                        Match   = '\s*([+-~?]?mx)\s+'
                         Replace = ' '
                     }) | Out-Null
             }
@@ -765,7 +765,7 @@ function Read-SpfRecord {
                 if ($SpfRecord.LookupCount -ge 5) {
                     $SpecificLookupsFound = $true
                     $IncludeLookupCount = $SpfRecord.LookupCount + 1
-                    $Match = ('include:{0}' -f $SpfRecord.Domain)
+                    $Match = ('[+-~?]?include:{0}' -f $SpfRecord.Domain)
                     $Recommendations.Add([PSCustomObject]@{
                             Message = ("Remove include modifier for domain '{0}', this adds {1} lookups towards the max of 10. Alternatively, reduce the number of lookups inside this record if you are able to." -f $SpfRecord.Domain, $IncludeLookupCount)
                             Match   = $Match
@@ -1203,7 +1203,6 @@ function Read-DkimRecord {
                 HashAlgorithms   = ''
                 ServiceType      = ''
                 Granularity      = ''
-                Raw              = ''
                 UnrecognizedTags = [System.Collections.Generic.List[object]]::new()
             }
 
@@ -1213,7 +1212,6 @@ function Read-DkimRecord {
             }
 
             $QueryResults = Resolve-DnsHttpsQuery @DnsQuery
-            $DkimRecord.Raw = $QueryResults.Answer
 
             if ([string]::IsNullOrEmpty($Selector)) { continue }
 
