@@ -8,7 +8,8 @@ Write-Host 'PowerShell HTTP trigger function processed a request.'
 Write-Host ($Context | ConvertTo-Json)
 try {
   Import-Module .\DNSHelper.psm1
-
+  Start-Sleep -Milliseconds 200
+  
   if ($Query.Action) {
     if ($Query.Domain -match '^(((?!-))(xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$') {
       switch ($Query.Action) {
