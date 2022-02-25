@@ -84,7 +84,7 @@ function Resolve-DnsHttpsQuery {
                 $DataReturned = $true
             }
             $Retry++
-            Start-Sleep -Milliseconds 250
+            Start-Sleep -Milliseconds 100
         }
     }
     
@@ -459,13 +459,15 @@ function Read-SpfRecord {
                             $Status = 'permerror'
                         }
                         else {
+                            Write-Host $Query
                             $ValidationFails.Add($NoSpfValidation) | Out-Null
                             $Status = 'temperror'
                         }
                     }
                     else {
+                        
                         $Answer = ($Query.answer | Where-Object { $_.data -match '^v=spf1' })
-                        $RecordCount = ($Answer | Measure-Object).count
+                        $RecordCount = ($Answer.data | Measure-Object).count
                         $Record = $Answer.data
                         if ($RecordCount -eq 0) { 
                             $ValidationFails.Add($NoSpfValidation) | Out-Null
@@ -562,9 +564,9 @@ function Read-SpfRecord {
                         Write-Verbose "Looking up include $($Matches.Value)"
                         $IncludeLookup = Read-SpfRecord -Domain $Matches.Value -Level 'Include'
                         
-                        if (($IncludeLookup | Measure-Object).Count -eq 0) {
+                        if ([string]::IsNullOrEmpty($IncludeLookup.Record) -and $Level -eq 'Parent') {
                             Write-Verbose '-----END INCLUDE (SPF MISSING)-----'
-                            $ValidationFails.Add("$Domain - Include lookup does not contain a SPF record, this will result in a failure.") | Out-Null
+                            $ValidationFails.Add("Include lookup for $($Matches.Value) does not contain a SPF record, this will result in a failure.") | Out-Null
                             $Status = 'permerror'
                         }
                         else {
