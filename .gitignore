@@ -9,6 +9,6 @@ Logs
 ExcludedTenants
 Config
 SendNotifications/config.json
-__azureite*
+__azurite*
 __blobstorage__
 __queuestorage__
