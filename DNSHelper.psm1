@@ -1747,6 +1747,11 @@ function Test-HttpsCertificate {
             $ParsedUrl = [System.Uri]::new($Url)
             $Hostname = $ParsedUrl.Host
 
+            # Valdiations
+            $ValidationPasses = [System.Collections.Generic.List[string]]::new()
+            $ValidationWarns = [System.Collections.Generic.List[string]]::new()
+            $ValidationFails = [System.Collections.Generic.List[string]]::new()
+
             # Grab certificate data
             $Validation = Get-ServerCertificateValidation -Url $Url
             $Certificate = $Validation.Certificate | Select-Object FriendlyName, IssuerName, NotBefore, NotAfter, SerialNumber, SignatureAlgorithm, SubjectName, Thumbprint, Issuer, Subject, DnsNameList
@@ -1758,40 +1763,40 @@ function Test-HttpsCertificate {
 
             # Check to see if certificate is contained in the DNS name list
             if ($Certificate.DnsNameList -contains $Hostname -or $Certificate.DnsNameList -eq "*.$Domain") {
-                $Test.ValidationPasses.Add(('{0} - Certificate DNS name list contains hostname.' -f $Hostname)) | Out-Null
+                $ValidationPasses.Add(('{0} - Certificate DNS name list contains hostname.' -f $Hostname)) | Out-Null
             }
             else {
-                $Test.ValidationFails.Add(('{0} - Certificate DNS name list does not contain hostname' -f $Hostname)) | Out-Null
+                $ValidationFails.Add(('{0} - Certificate DNS name list does not contain hostname' -f $Hostname)) | Out-Null
             }
 
             # Check certificate validity
             if ($Certificate.NotBefore -ge $CurrentDate) {
                 # NotBefore is in the future
-                $Test.ValidationFails.Add(('{0} - Certificate is not yet valid.' -f $Hostname)) | Out-Null
+                $ValidationFails.Add(('{0} - Certificate is not yet valid.' -f $Hostname)) | Out-Null
             }
             elseif ($Certificate.NotAfter -le $CurrentDate) {
                 # NotAfter is in the past
-                $Test.ValidationFails.Add(('{0} - Certificate expired {1} day(s) ago.' -f $Hostname, [Math]::Abs($TimeSpan.Days))) | Out-Null
+                $ValidationFails.Add(('{0} - Certificate expired {1} day(s) ago.' -f $Hostname, [Math]::Abs($TimeSpan.Days))) | Out-Null
             }
             elseif ($Certificate.NotAfter -ge $CurrentDate -and $TimeSpan.Days -lt 30) {
                 # NotAfter is under 30 days away
-                $Test.ValidationWarns.Add(('{0} - Certificate will expire in {1} day(s).' -f $Hostname, $TimeSpan.Days)) | Out-Null
+                $ValidationWarns.Add(('{0} - Certificate will expire in {1} day(s).' -f $Hostname, $TimeSpan.Days)) | Out-Null
             }
             else {
                 # Certificate is valid and not expired
-                $Test.ValidationPasses.Add(('{0} - Certificate is valid for the next {1} days.' -f $Hostname, $TimeSpan.Days)) | Out-Null
+                $ValidationPasses.Add(('{0} - Certificate is valid for the next {1} days.' -f $Hostname, $TimeSpan.Days)) | Out-Null
             }
 
             # Certificate chain errors
             if (($Chain.ChainStatus | Measure-Object).Count -gt 0) {
                 foreach ($Status in $Chain.ChainStatus) {
-                    $Test.ValidationFails.Add(('{0} - {1}' -f $Hostname, $Status.StatusInformation)) | Out-Null
+                    $ValidationFails.Add(('{0} - {1}' -f $Hostname, $Status.StatusInformation)) | Out-Null
                 }
             }
 
             # Website status errorr
             if ([int]$HttpResponse.StatusCode -ge 400) {
-                $Test.ValidationFails.Add(('{0} - Website responded with: {1}' -f $Hostname, $HttpResponse.ReasonPhrase))
+                $ValidationFails.Add(('{0} - Website responded with: {1}' -f $Hostname, $HttpResponse.ReasonPhrase))
             } 
 
             # Set values and return Test object
@@ -1800,6 +1805,10 @@ function Test-HttpsCertificate {
             $Test.Chain = $Chain
             $Test.HttpResponse = $HttpResponse
             $Test.ValidityDays = $TimeSpan.Days
+
+            $Test.ValidationPasses = @($ValidationPasses)
+            $Test.ValidationWarns = @($ValidationWarns)
+            $Test.ValidationFails = @($ValidationFails)
 
             # Return test
             $Test

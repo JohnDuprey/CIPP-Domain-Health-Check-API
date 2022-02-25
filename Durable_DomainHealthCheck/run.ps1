@@ -9,7 +9,7 @@ Write-Host ($Context | ConvertTo-Json)
 try {
   Import-Module .\DNSHelper.psm1
   Start-Sleep -Milliseconds 200
-  
+
   if ($Query.Action) {
     if ($Query.Domain -match '^(((?!-))(xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$') {
       switch ($Query.Action) {
@@ -83,4 +83,4 @@ catch {
   $Body = [pscustomobject]@{'Results' = "$errMessage" }
 }
 New-Item 'Cache_DomainHealth' -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
-$Body | ConvertTo-Json | Out-File "Cache_DomainHealth\$GUID.json"
+$Body | ConvertTo-Json -Depth 10 | Out-File "Cache_DomainHealth\$GUID.json"
