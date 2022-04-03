@@ -2,7 +2,7 @@ using namespace System.Net
 # Input bindings are passed in via param block.
 param($Request, $TriggerMetadata)
 
-$CheckOrchestrator = $true
+#$CheckOrchestrator = $true
 
 if ($request.query.GUID) {
     $RunningGUID = $request.query.GUID
@@ -53,11 +53,10 @@ else {
     $OrchQueue | ConvertTo-Json | Out-File "Cache_DomainHealthQueue\$($CacheFileName)"
 }
 
-if (!(Test-Path 'Cache_DomainHealthQueue\CurrentlyRunning.txt') -and $CheckOrchestrator) {
+<#if ($CheckOrchestrator) {
     try {
-        New-Item 'Cache_DomainHealthQueue\CurrentlyRunning.txt' -ErrorAction Stop | Out-Null
         $InstanceId = Start-NewOrchestration -FunctionName 'DomainHealth_Orchestrator'
         Write-Information "ORCHESTRATOR INSTANCE: $InstanceId"
     }
     catch {}
-}
+}#>

@@ -2,17 +2,17 @@ param($Context)
 
 try {
     $Context = $Context | ConvertTo-Json | ConvertFrom-Json
-    Write-Information '============================= BEGIN ORCHESTRATOR ============================='
+    #Write-Information '============================= BEGIN ORCHESTRATOR ============================='
     try {
         $Batch = Invoke-ActivityFunction -FunctionName 'DomainHealth_GetQueue' -Input 'LetsGo' -ErrorAction Stop
-        Write-Information 'Got queued jobs'
+        #Write-Information 'Got queued jobs'
     }
     catch { 
         Write-Information "QUEUE EXCEPTION: $($_.Exception.Message)"
         $Batch = $null
     }
     if ($Batch -and ($Batch | Measure-Object).Count -gt 0) {
-        Write-Information '================================== BEGIN QUEUE ===================================='
+        #Write-Information '================================== BEGIN QUEUE ===================================='
         $ParallelTasks = foreach ($Item in $Batch) {
             if ($null -ne $Item -and (Test-Path "Cache_DomainHealthQueue\$Item")) {
                 Write-Information "Processing: $Item"
@@ -28,7 +28,7 @@ try {
             Wait-ActivityFunction -Task $ParallelTasks
         }
         catch {}
-        Write-Information '================================== END QUEUE ===================================='
+        #Write-Information '================================== END QUEUE ===================================='
     }
 }
 catch {
@@ -38,8 +38,17 @@ catch {
 If (Test-Path 'Cache_DomainHealthQueue\CurrentlyRunning.txt') {
     try {
         Remove-Item 'Cache_DomainHealthQueue\CurrentlyRunning.txt' -Force | Out-Null
-        Write-Information 'Cleanup lock file'
+        #Write-Information 'Cleanup lock file'
     }
     catch { Write-Information "EXCEPTION: $($_.Exception.Message)" }
 }
-Write-Information '================================== END ORCHESTRATOR =================================='
+#Write-Information '================================== END ORCHESTRATOR =================================='
+
+# Remove orphaned cache files
+if (Test-Path .\Cache_DomainHealth) {
+    Get-ChildItem .\Cache_DomainHealth | ForEach-Object {
+        if ($_.CreationTime -le (Get-Date).AddMinutes(-10)) {
+            $_ | Remove-Item -Force
+        }
+    }
+}
