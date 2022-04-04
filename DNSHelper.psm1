@@ -68,8 +68,9 @@ function Resolve-DnsHttpsQuery {
         catch {
             Write-Information "$Resolver DoH Query Exception - $($_.Exception.Message)"
             New-Item -ItemType Directory -Path .\Logs -Force | Out-Null
-            $_.Exception | ConvertTo-Json | Out-File -Append '.\Logs\doh-exception.log'
-            Start-Sleep -Seconds 1
+            $Uri | Out-File -Append '.\Logs\doh-exception.log'
+            $_.Exception.Message | Out-File -Append '.\Logs\doh-exception.log'
+            Start-Sleep -Seconds 2
         }
     
         if ($Resolver -eq 'Cloudflare' -and $RecordType -eq 'txt' -and $Results.Answer) {
