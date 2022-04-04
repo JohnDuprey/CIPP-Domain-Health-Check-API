@@ -1,16 +1,18 @@
 param($QueuedRequest)
 
 Write-Information 'PowerShell HTTP trigger function processed a request.'
-Write-Information ($Context | ConvertTo-Json)
+#Write-Information ($Context | ConvertTo-Json)
 
 if (Test-Path "Cache_DomainHealthQueue\$QueuedRequest") {
   $Cache = Get-Content "Cache_DomainHealthQueue\$QueuedRequest" | ConvertFrom-Json
   Remove-Item "Cache_DomainHealthQueue\$QueuedRequest" -Force
+
+  #$Cache = $Context | ConvertTo-Json | ConvertFrom-Json
   $Query = $Cache.Query
 
+  Start-Sleep -Milliseconds 200
   try {
     Import-Module .\DNSHelper.psm1
-
     if ($Query.Action) {
       if ($Query.Domain -match '^(((?!-))(xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$') {
         switch ($Query.Action) {
@@ -84,5 +86,5 @@ if (Test-Path "Cache_DomainHealthQueue\$QueuedRequest") {
     $Body = [pscustomobject]@{'Results' = "$errMessage" }
   }
   New-Item 'Cache_DomainHealth' -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
-  $Body | ConvertTo-Json -Depth 10 | Out-File "Cache_DomainHealth\$QueuedRequest"
+  $Body | ConvertTo-Json -Depth 10 | Out-File "Cache_DomainHealth\$($QueuedRequest)"
 }

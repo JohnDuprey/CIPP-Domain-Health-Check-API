@@ -9,25 +9,16 @@ if ($request.query.GUID) {
     $CacheFileName = '{0}.json' -f $RunningGUID
 
     if (Test-Path "Cache_DomainHealth\$($CacheFileName)" ) {
-        try {
-            $JSONOutput = Get-Content "Cache_DomainHealth\$($CacheFileName)" -ErrorAction Stop | ConvertFrom-Json
-            Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-                    StatusCode = [HttpStatusCode]::OK
-                    Body       = $JSONOutput
-                })
-        }
-        catch {
-            Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-                    StatusCode = [HttpStatusCode]::InternalServerError
-                    Body       = @{Results = 'Error' }
-                })
-        }
-
+        $JSONOutput = Get-Content "Cache_DomainHealth\$($CacheFileName)" | ConvertFrom-Json
+        #Write-Information $JSONOutput
+        Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+                StatusCode = [HttpStatusCode]::OK
+                Body       = $JSONOutput
+            })
         try {
             Remove-Item "Cache_DomainHealth\$($CacheFileName)" -Force
         }
         catch {}
-        $CheckOrchestrator = $false
     }   
     else {
         # Associate values to output bindings by calling 'Push-OutputBinding'.
@@ -49,7 +40,7 @@ else {
         CacheFileName = $CacheFileName
         Query         = $Request.Query
     }
-
+    Start-NewOrchestration -FunctionName 'DomainHealth_Orchestrator' -Input $OrchQueue
     $OrchQueue | ConvertTo-Json | Out-File "Cache_DomainHealthQueue\$($CacheFileName)"
 }
 
