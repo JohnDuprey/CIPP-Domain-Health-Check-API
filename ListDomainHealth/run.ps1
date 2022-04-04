@@ -32,22 +32,16 @@ else {
     $RunningGUID = New-Guid
     $CacheFileName = '{0}.json' -f $RunningGUID
 
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-            StatusCode = [HttpStatusCode]::OK
-            Body       = @{ GUID = $RunningGUID }
-        })
     $OrchQueue = [PSCustomObject]@{
         CacheFileName = $CacheFileName
         Query         = $Request.Query
     }
-    Start-NewOrchestration -FunctionName 'DomainHealth_Orchestrator' -Input $OrchQueue
     $OrchQueue | ConvertTo-Json | Out-File "Cache_DomainHealthQueue\$($CacheFileName)"
-}
+    Start-NewOrchestration -FunctionName 'DomainHealth_Orchestrator' -Input $OrchQueue
+    
 
-<#if ($CheckOrchestrator) {
-    try {
-        $InstanceId = Start-NewOrchestration -FunctionName 'DomainHealth_Orchestrator'
-        Write-Information "ORCHESTRATOR INSTANCE: $InstanceId"
-    }
-    catch {}
-}#>
+    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+            StatusCode = [HttpStatusCode]::OK
+            Body       = @{ GUID = $RunningGUID }
+        })
+}
