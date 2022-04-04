@@ -62,6 +62,7 @@ function Resolve-DnsHttpsQuery {
     $Retry = 0
     $DataReturned = $false
     while (!$DataReturned) {
+        $Exception = $false
         try {
             $Results = Invoke-RestMethod -Uri $Uri -Headers $Headers -ErrorAction Stop
         }
@@ -71,6 +72,7 @@ function Resolve-DnsHttpsQuery {
             $Uri | Out-File -Append '.\Logs\doh-exception.log'
             $_.Exception.Message | Out-File -Append '.\Logs\doh-exception.log'
             Start-Sleep -Seconds 2
+            $Exception = $true
         }
     
         if ($Resolver -eq 'Cloudflare' -and $RecordType -eq 'txt' -and $Results.Answer) {
@@ -78,20 +80,24 @@ function Resolve-DnsHttpsQuery {
                 $_.data = $_.data -replace '"' -replace '\s+', ' '
             }
         }
-
-        if ($Results.Answer) {
-            $DataReturned = $true
-        }
-        elseif ($Results.Status -ne 0) {
-            $DataReturned = $true
-        }
-        else {
-            if ($Retry -gt 3) {
+                
+        if (!$Exception) {
+            if ($Results.Answer) {
                 $DataReturned = $true
             }
-            $Retry++
-            Start-Sleep -Milliseconds 100
+            elseif ($Results.Status -ne 0) {
+                $DataReturned = $true
+            }
+            else {
+                Start-Sleep -Milliseconds 100
+            }
         }
+        
+        if ($Retry -gt 3) {
+            $DataReturned = $true
+        }
+        
+        $Retry++
     }
     
     Write-Verbose ($Results | ConvertTo-Json)
