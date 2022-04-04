@@ -62,26 +62,14 @@ function Resolve-DnsHttpsQuery {
     $Retry = 0
     $DataReturned = $false
     while (!$DataReturned) {
-        $Exception = $false
         try {
             $Results = Invoke-RestMethod -Uri $Uri -Headers $Headers -ErrorAction Stop
-        }
-        catch {
-            Write-Information "$Resolver DoH Query Exception - $($_.Exception.Message)"
-            New-Item -ItemType Directory -Path .\Logs -Force | Out-Null
-            $Uri | Out-File -Append '.\Logs\doh-exception.log'
-            $_.Exception.Message | Out-File -Append '.\Logs\doh-exception.log'
-            Start-Sleep -Seconds 2
-            $Exception = $true
-        }
-    
-        if ($Resolver -eq 'Cloudflare' -and $RecordType -eq 'txt' -and $Results.Answer) {
-            $Results.Answer | ForEach-Object {
-                $_.data = $_.data -replace '"' -replace '\s+', ' '
+            if ($Resolver -eq 'Cloudflare' -and $RecordType -eq 'txt' -and $Results.Answer) {
+                $Results.Answer | ForEach-Object {
+                    $_.data = $_.data -replace '"' -replace '\s+', ' '
+                }
             }
-        }
                 
-        if (!$Exception) {
             if ($Results.Answer) {
                 $DataReturned = $true
             }
@@ -92,11 +80,23 @@ function Resolve-DnsHttpsQuery {
                 Start-Sleep -Milliseconds 100
             }
         }
-        
+        catch {
+            Write-Information "$Resolver DoH Query Exception - $($_.Exception.Message)"
+            if ($env:DebugMode -eq 'True') {
+                New-Item -ItemType Directory -Path .\Logs -Force | Out-Null
+                Get-Date | Out-File -Append '.\Logs\doh-exception.log'
+                "Retries: $Retry" | Out-File -Append '.\Logs\doh-exception.log'
+                $Uri | Out-File -Append '.\Logs\doh-exception.log'
+                $_.Exception.Message | Out-File -Append '.\Logs\doh-exception.log'
+                '---------------------------' | Out-File -Append '.\Logs\doh-exception.log'
+            }
+            Start-Sleep -Seconds 2
+        }
+     
         if ($Retry -gt 3) {
             $DataReturned = $true
         }
-        
+
         $Retry++
     }
     
