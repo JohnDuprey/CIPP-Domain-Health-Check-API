@@ -7,10 +7,21 @@ if (Test-Path "Cache_DomainHealthQueue\$QueuedRequest") {
   $Cache = Get-Content "Cache_DomainHealthQueue\$QueuedRequest" | ConvertFrom-Json
   Remove-Item "Cache_DomainHealthQueue\$QueuedRequest" -Force
 
-  #$Cache = $Context | ConvertTo-Json | ConvertFrom-Json
   $Query = $Cache.Query
 
-  Start-Sleep -Milliseconds 200
+  # Test connection to DNS resolver
+  $Config = Get-Content .\Config\DnsConfig.json | ConvertFrom-Json
+  if ($Config.Resolver -eq 'Google') { $DnsHost = 'dns.google' }
+  elseif ($Config.Resolver -eq 'CloudFlare') { $DnsHost = 'cloudflare-dns.com' }
+
+  $Retries = 0 
+  do {
+    $Connection = Test-Connection -TargetName $DnsHost -TcpPort 443
+    Start-Sleep -Milliseconds 200
+    $Retries++
+  }
+  while (!$Connection -or $Retries -ge 4)
+  
   try {
     Import-Module .\DNSHelper.psm1
     if ($Query.Action) {
