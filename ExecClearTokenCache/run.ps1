@@ -4,7 +4,7 @@ using namespace System.Net
 param($Request, $TriggerMetadata)
 
 $APIName = $TriggerMetadata.FunctionName
-Log-Request -user $request.headers.'x-ms-client-principal' -API $APINAME -message 'Accessed this API' -Sev 'Debug'
+#Log-Request -user $request.headers.'x-ms-client-principal' -API $APINAME -message 'Accessed this API' -Sev 'Debug'
 
 # Write an information log with the current time.
 Write-Host "PowerShell timer trigger function ran! TIME: $currentUTCtime"
