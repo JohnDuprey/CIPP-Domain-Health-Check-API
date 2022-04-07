@@ -16,7 +16,7 @@ $Function | Out-File $File -Append
 $Current = 'Current RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
 $Current | Out-File $File -Append
 
-switch ($tenant) {
+switch ($tenant.Tenant) {
     'Phase1' {
         try {
             #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message 'Phase 1: Renaming settings and restarting function app' -sev Info
