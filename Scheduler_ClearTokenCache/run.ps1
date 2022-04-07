@@ -7,16 +7,18 @@ if ($env:MSI_SECRET) {
     $AzSession = Connect-AzAccount -Identity -Subscription $Subscription
 }
 
+$File = '.\test-log.txt'
+
 $Function = Get-AzFunctionApp -ResourceGroupName $ResourceGroup -Name $ENV:WEBSITE_SITE_NAME
 
 $Current = 'Current RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
-Write-Information $Current
+$Current | Out-File $File -Append
 
 switch ($tenant) {
     'Phase1' {
         try {
             #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message 'Phase 1: Renaming settings and restarting function app' -sev Info
-            Write-Information 'Phase 1: Renaming settings and restarting function app'
+            'Phase 1: Renaming settings and restarting function app' | Out-File $File -Append
             $Settings = $Function | Get-AzFunctionAppSetting
             $Function | Update-AzFunctionAppSetting -AppSetting @{ 
                 RefreshToken2         = $Settings.RefreshToken 
@@ -34,14 +36,14 @@ switch ($tenant) {
         }
         catch {
             #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message "Phase 1: Exception caught - $($_.Exception.Message)" -sev Error
-            Write-Information "Phase 1: Exception caught - $($_.Exception.Message)"
+            "Phase 1: Exception caught - $($_.Exception.Message)" | Out-File $File -Append
             Remove-Item -Path 'Cache_Scheduler\_ClearTokenCache.json' -Force -Confirm:$false
         }
     }
     'Phase2' {
         try {
             Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message 'Phase 2: Waiting 5 minutes and restarting function app' -sev Info
-            Write-Information 'Phase 2: Waiting 5 minutes and restarting function app'
+            'Phase 2: Waiting 5 minutes and restarting function app' | Out-File $File -Append
             Start-Sleep -Seconds 300
         
             [PSCustomObject]@{
@@ -52,14 +54,14 @@ switch ($tenant) {
         }
         catch {
             #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message "Phase 2: Exception caught - $($_.Exception.Message)" -sev Error
-            Write-Information "Phase 2: Exception caught - $($_.Exception.Message)"
+            "Phase 2: Exception caught - $($_.Exception.Message)" | Out-File $File -Append
             Remove-Item -Path 'Cache_Scheduler\_ClearTokenCache.json' -Force -Confirm:$false
         }
     }
     'Phase3' {
         try {
             #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message 'Phase 3: Waiting 5 minutes, renaming settings back and restarting function app' -sev Info
-            Write-Information 'Phase 3: Waiting 5 minutes, renaming settings back and restarting function app'
+            'Phase 3: Waiting 5 minutes, renaming settings back and restarting function app' | Out-File $File -Append
             Start-Sleep -Seconds 300
             $Settings = $Function | Get-AzFunctionAppSetting
             $Function | Update-AzFunctionAppSetting -AppSetting @{ 
@@ -78,14 +80,15 @@ switch ($tenant) {
         }
         catch {
             #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message "Phase 3: Exception caught - $($_.Exception.Message)" -sev Error
-            Write-Information "Phase 3: Exception caught - $($_.Exception.Message)"
+            "Phase 3: Exception caught - $($_.Exception.Message)" | Out-File $File -Append
             Remove-Item -Path 'Cache_Scheduler\_ClearTokenCache.json' -Force -Confirm:$false
         }
     }
     'Phase4' {
         #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message 'Phase 4: Update token cache completed. Removing scheduler entry.' -sev Info
-        Write-Information 'Phase 4: Update token cache completed. Removing scheduler entry.'
+        'Phase 4: Update token cache completed. Removing scheduler entry.' | Out-File $File -Append
         Remove-Item 'Cache_Scheduler\_UpdateTokens.json' -Force -Confirm:$false
     }
 }
-$Current = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
+$Updated = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
+$Updated | Out-File $File -Append

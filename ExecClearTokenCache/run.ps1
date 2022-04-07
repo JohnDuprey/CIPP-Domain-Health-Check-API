@@ -15,8 +15,8 @@ if ($env:MSI_SECRET) {
 $KV = Get-AzKeyVault -SubscriptionId $Subscription -ResourceGroupName $ResourceGroup
 
 Write-Host 'TESTING: Updating keyvault values'
-Set-AzKeyVaultSecret -VaultName $kv.vaultname -Name 'RefreshToken' -SecretValue 'This is a test 2'
-Set-AzKeyVaultSecret -VaultName $kv.vaultname -Name 'ExchangeRefreshToken' -SecretValue 'This is a test 2'
+Set-AzKeyVaultSecret -VaultName $kv.vaultname -Name 'RefreshToken' -SecretValue (ConvertTo-SecureString -String 'This is a test 2' -AsPlainText -Force)
+Set-AzKeyVaultSecret -VaultName $kv.vaultname -Name 'ExchangeRefreshToken' -SecretValue (ConvertTo-SecureString -String 'This is a test 2' -AsPlainText -Force)
 
 # Write an information log with the current time.
 Write-Host "PowerShell timer trigger function ran! TIME: $currentUTCtime"
