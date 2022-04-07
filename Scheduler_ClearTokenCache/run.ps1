@@ -11,6 +11,8 @@ $File = '.\test-log.txt'
 
 $Function = Get-AzFunctionApp -ResourceGroupName $ResourceGroup -Name $ENV:WEBSITE_SITE_NAME
 
+$Function | Out-File $File -Append
+
 $Current = 'Current RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
 $Current | Out-File $File -Append
 
@@ -31,6 +33,9 @@ switch ($tenant) {
                 tenant = 'Phase2'
                 Type   = 'ClearTokenCache'
             } | ConvertTo-Json -Compress | Out-File 'Cache_Scheduler\_ClearTokenCache.json' -Force
+            
+            $Updated = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
+            $Updated | Out-File $File -Append
 
             $Function | Restart-AzFunctionApp -Confirm:$false
         }
@@ -50,6 +55,10 @@ switch ($tenant) {
                 tenant = 'Phase3'
                 Type   = 'ClearTokenCache'
             } | ConvertTo-Json -Compress | Out-File 'Cache_Scheduler\_ClearTokenCache.json' -Force 
+
+            $Updated = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
+            $Updated | Out-File $File -Append
+
             $Function | Restart-AzFunctionApp -Confirm:$false
         }
         catch {
@@ -76,6 +85,9 @@ switch ($tenant) {
                 Type   = 'ClearTokenCache'
             } | ConvertTo-Json -Compress | Out-File 'Cache_Scheduler\_ClearTokenCache.json' -Force 
 
+            $Updated = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
+            $Updated | Out-File $File -Append
+            
             $Function | Restart-AzFunctionApp -Confirm:$false
         }
         catch {
@@ -88,7 +100,7 @@ switch ($tenant) {
         #Log-request -API 'ClearTokenCache' -tenant 'Scheduler' -message 'Phase 4: Update token cache completed. Removing scheduler entry.' -sev Info
         'Phase 4: Update token cache completed. Removing scheduler entry.' | Out-File $File -Append
         Remove-Item 'Cache_Scheduler\_UpdateTokens.json' -Force -Confirm:$false
+        $Updated = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
+        $Updated | Out-File $File -Append
     }
 }
-$Updated = 'Updated RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
-$Updated | Out-File $File -Append
