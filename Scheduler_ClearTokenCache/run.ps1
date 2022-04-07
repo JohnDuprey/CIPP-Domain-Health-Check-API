@@ -10,8 +10,9 @@ if ($env:MSI_SECRET) {
 $File = '.\test-log.txt'
 
 $Function = Get-AzFunctionApp -ResourceGroupName $ResourceGroup -Name $ENV:WEBSITE_SITE_NAME
-
 $Function | Out-File $File -Append
+
+$tenant | ConvertTo-Json -Compress | Out-File -Append $File
 
 $Current = 'Current RT: {0}, ERT: {1} | RT2: {2}, ERT2: {3}' -f $env:RefreshToken, $env:ExchangeRefreshToken, $env:RefreshToken2, $env:ExchangeRefreshToken2
 $Current | Out-File $File -Append
