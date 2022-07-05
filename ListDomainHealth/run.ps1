@@ -29,7 +29,7 @@ if ($request.query.GUID) {
     }
 }
 else {
-    $RunningGUID = New-Guid
+    $RunningGUID = (New-Guid).Guid
     $CacheFileName = '{0}.json' -f $RunningGUID
 
     $OrchQueue = [PSCustomObject]@{

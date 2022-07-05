@@ -1,0 +1,149 @@
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-10T19:59:41.0858382Z"
+  }
+}
+{}
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-10T19:59:41.0858382Z"
+  }
+}
+{}
+System.Collections.Hashtable
+System.Collections.Hashtable
+Completed successfully
+Remove lock file
+=== END Orchestrator ===
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-10T20:09:17.0080763Z"
+  }
+}
+{}
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-10T20:09:17.0080763Z"
+  }
+}
+{}
+System.Collections.Hashtable
+System.Collections.Hashtable
+Completed successfully
+Remove lock file
+=== END Orchestrator ===
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-11T04:00:00.5557631Z"
+  }
+}
+{}
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-11T04:00:00.5557631Z"
+  }
+}
+{}
+System.Collections.Hashtable
+System.Collections.Hashtable
+Completed successfully
+Remove lock file
+=== END Orchestrator ===
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-12T14:38:17.5955206Z"
+  }
+}
+{}
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-12T14:38:17.5955206Z"
+  }
+}
+{}
+
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+System.Collections.Hashtable
+Completed successfully
+Remove lock file
+=== END Orchestrator ===
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-13T12:28:20.3515516Z"
+  }
+}
+{}
+=== Orchestrator Start ===
+Start cleanup
+{
+  "Context": {
+    "Input": null,
+    "CurrentUtcDateTime": "2022-04-13T12:28:20.3515516Z"
+  }
+}
+{}
+
+System.Collections.Hashtable
+System.Collections.Hashtable
+Completed successfully
+Remove lock file
+=== END Orchestrator ===

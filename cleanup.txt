@@ -1,0 +1,38 @@
+=== Durable Cleanup ===
+{
+  "Context": "Microsoft.Azure.Functions.PowerShellWorker.Durable.OrchestrationContext"
+}
+{
+  "FunctionName": "Scheduler_StorageCleanup",
+  "InvocationId": "72879886-c62e-4b14-ac92-16737979086a",
+  "Context": "Microsoft.Azure.Functions.PowerShellWorker.Durable.OrchestrationContext",
+  "instanceId": "975baeb3-510d-4572-bb01-ae7052bdd87d",
+  "data": {
+    "Context": "Microsoft.Azure.Functions.PowerShellWorker.Durable.OrchestrationContext"
+  },
+  "Request": {
+    "Context": "Microsoft.Azure.Functions.PowerShellWorker.Durable.OrchestrationContext"
+  },
+  "FunctionDirectory": "C:\\Users\\jduprey.CNS\\Documents\\GitHub\\CIPP-Domain-Health-Check-API\\Scheduler_StorageCleanup"
+}
+[
+  {
+    "ExecutionId": "38aab921f64f488b9ab663695950f847",
+    "IsCheckpointComplete": true,
+    "CheckpointCompletedTimestamp": "2022-04-12T14:38:32.8043948Z",
+    "PartitionKey": "5594ca83-5edc-460b-8999-386ca6b07b86",
+    "RowKey": "sentinel",
+    "TableTimestamp": "2022-04-12T10:38:32.804-04:00",
+    "Etag": "W/\"datetime'2022-04-12T14%3A38%3A32.8040000Z'\""
+  },
+  {
+    "ExecutionId": "dd2b74bf894e41beb1c0557a832cff54",
+    "IsCheckpointComplete": true,
+    "CheckpointCompletedTimestamp": "2022-04-13T12:28:20.9515065Z",
+    "PartitionKey": "975baeb3-510d-4572-bb01-ae7052bdd87d",
+    "RowKey": "sentinel",
+    "TableTimestamp": "2022-04-13T08:28:20.963-04:00",
+    "Etag": "W/\"datetime'2022-04-13T12%3A28%3A20.9630000Z'\""
+  }
+]
+=== END Durable Cleanup ===
