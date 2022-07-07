@@ -1,0 +1,9 @@
+{
+  "Name": "Rackspace",
+  "MxMatch": "emailsrvr.com",
+  "SpfInclude": "emailsrvr.com",
+  "Selectors": [""],
+  "_MxComment": "https://docs.rackspace.com/support/how-to/dns-record-definitions#mx-record",
+  "_SpfComment": "https://docs.rackspace.com/support/how-to/create-an-spf-policy/",
+  "_DkimComment": "https://docs.rackspace.com/support/how-to/enable-dkim-in-the-cloud-office-control-panel/"
+}
